@@ -27,7 +27,7 @@ CREATE TABLE Carro (
     modelo VARCHAR(50) NOT NULL,
     marca VARCHAR(50) NOT NULL,
     valorDiaria DECIMAL(10, 2) NOT NULL,
-    statusCarro VARCHAR(20) NOT NULL CHECK (statusCarro IN ('LIVRE', 'ALUGADO', 'RESERVADO', 'MANUTENCAO')),
+    status VARCHAR(20) NOT NULL CHECK (status IN ('LIVRE', 'ALUGADO', 'RESERVADO', 'MANUTENCAO')),
     idLojaAtual INT NOT NULL,
     FOREIGN KEY (idLojaAtual) REFERENCES Loja(idLoja)
 );
@@ -48,7 +48,7 @@ CREATE TABLE Locacao (
     idLocacao INT PRIMARY KEY,
     idReserva INT UNIQUE NOT NULL, 
     placaCarro VARCHAR(7) NOT NULL, 
-    dataRetiradaReal DATETIME DEFAULT CURRENT_TIMESTAMP,
+    dataRealRetirada DATETIME DEFAULT CURRENT_TIMESTAMP,
     dataDevolucaoPrevista DATETIME NOT NULL,
     idLojaDevolucao INT NOT NULL,
     FOREIGN KEY (idReserva) REFERENCES Reserva(idReserva),
@@ -56,7 +56,7 @@ CREATE TABLE Locacao (
     FOREIGN KEY (idLojaDevolucao) REFERENCES Loja(idLoja)
 );
 
-CREATE TABLE MotoristaAdicional (
+CREATE TABLE Motorista (
     idMotorista INT PRIMARY KEY,
     idLocacao INT NOT NULL UNIQUE,
     nome VARCHAR(100) NOT NULL,
@@ -74,9 +74,9 @@ INSERT INTO Loja (idLoja, nome, idCidade) VALUES (10, 'Aeroporto Confins', 1);
 INSERT INTO Loja (idLoja, nome, idCidade) VALUES (11, 'Centro BH', 1);
 
 -- CARROS
-INSERT INTO Carro (placa, modelo, marca, valorDiaria, statusCarro, idLojaAtual) 
+INSERT INTO Carro (placa, modelo, marca, valorDiaria, status, idLojaAtual) 
 VALUES ('AAA1111', 'Gol', 'VW', 90.00, 'LIVRE', 10);
-INSERT INTO Carro (placa, modelo, marca, valorDiaria, statusCarro, idLojaAtual) 
+INSERT INTO Carro (placa, modelo, marca, valorDiaria, status, idLojaAtual) 
 VALUES ('BBB2222', 'Polo', 'VW', 120.00, 'LIVRE', 11);
 
 -- CLIENTE
@@ -86,12 +86,12 @@ INSERT INTO Cliente (idCliente, nome, cpf, cnh) VALUES (1000, 'Carlos Water Fall
 INSERT INTO Reserva (idReserva, idCliente, dataRetiradaPrevista, idLojaRetirada, periodoDias, valorTotal)
 VALUES (500, 1000, '2024-01-10 10:00:00', 11, 7, 630.00);
 
--- 2. ALOCAÇÃO INTELIGENTE (Busca o carro mais próximo - Regra de Negócio)
+-- 2. ALOCAÇÃO INTELIGENTE (Busca o carro mais perto - Regra de Negócio)
 SELECT 
     C.placa, L.nome as LojaLocalizacao
 FROM Carro C
 JOIN Loja L ON C.idLojaAtual = L.idLoja
-WHERE C.statusCarro = 'LIVRE'
+WHERE C.status = 'LIVRE'
   AND L.idCidade = (SELECT idCidade FROM Loja WHERE idLoja = 11)
 ORDER BY 
     CASE WHEN L.idLoja = 11 THEN 0 ELSE 1 END ASC
@@ -101,12 +101,12 @@ LIMIT 1;
 INSERT INTO Locacao (idLocacao, idReserva, placaCarro, dataDevolucaoPrevista, idLojaDevolucao)
 VALUES (1000, 500, 'BBB2222', '2024-01-17 10:00:00', 10);
 
--- 4. INCLUSÃO DE MOTORISTA ADICIONAL
-INSERT INTO MotoristaAdicional (idMotorista, idLocacao, nome, cnh)
+-- 4. INCLUSÃO DE MOTORISTA
+INSERT INTO Motorista (idMotorista, idLocacao, nome, cnh)
 VALUES (200, 1000, 'Maria Auxiliar', '98765432100'); 
 
 -- 5. ATUALIZAR STATUS
-UPDATE Carro SET statusCarro = 'ALUGADO' WHERE placa = 'BBB2222';
+UPDATE Carro SET status = 'ALUGADO' WHERE placa = 'BBB2222';
 
 -- 6. RELATÓRIO ESTATÍSTICO
 SELECT R.periodoDias, COUNT(L.idLocacao) AS TotalLocacoes
