@@ -53,3 +53,13 @@ FROM Locacao L
 JOIN Reserva R ON L.idReserva = R.idReserva
 JOIN Cliente C ON R.idCliente = C.idCliente
 JOIN Carro Car ON L.placaCarro = Car.placa;
+
+-- 6. RELATÓRIO ESTATÍSTICO (Funcionalidade Extra pedida no texto)
+-- Conta quantas locações existem por tipo de período (7, 15 ou 30 dias)
+SELECT 
+    R.periodoDias, 
+    COUNT(L.idLocacao) AS TotalLocacoes,
+    SUM(R.valorTotal) AS FaturamentoTotal
+FROM Locacao L
+JOIN Reserva R ON L.idReserva = R.idReserva
+GROUP BY R.periodoDias;
