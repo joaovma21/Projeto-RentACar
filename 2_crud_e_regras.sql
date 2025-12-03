@@ -48,7 +48,7 @@ SET status = 'ALUGADO'
 WHERE placa = 'BBB2222';
 
 -- 5. Relatório final de conferência
-SELECT L.idLocacao, C.nome as Cliente, Car.modelo as CarroAlocado, Car.statusCarro
+SELECT L.idLocacao, C.nome as Cliente, Car.modelo as CarroAlocado, Car.status
 FROM Locacao L
 JOIN Reserva R ON L.idReserva = R.idReserva
 JOIN Cliente C ON R.idCliente = C.idCliente
